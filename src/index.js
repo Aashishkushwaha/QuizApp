@@ -2,12 +2,19 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
+import ThemeProvider from "./ThemeWrapper";
+import { BrowserRouter as Router } from "react-router-dom";
 import * as serviceWorker from "./serviceWorker";
 
+// design -
+// https://www.figma.com/proto/Ot1LSXFLzYp4A5qDdYaGdM/Quizapp?node-id=1%3A2&viewport=226%2C61%2C0.5380759239196777&scaling=min-zoom
+
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <Router>
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
+  </Router>,
   document.getElementById("root")
 );
 

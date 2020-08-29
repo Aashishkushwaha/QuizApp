@@ -1,8 +1,19 @@
 import React from "react";
-import "./App.css";
+import { Route, Switch } from "react-router-dom";
+import Header from "./components/Header/Header";
+import GameStarter from "./components/GameStarter/GameStarter";
+import GameScreen from "./components/GameScreen/GameScreen";
 
 function App() {
-  return <div>Starter app</div>;
+  return (
+    <div>
+      <Header />
+      <Switch>
+        <Route path="/" exact component={GameStarter} />
+        <Route path="/game" exact component={GameScreen} />
+      </Switch>
+    </div>
+  );
 }
 
 export default App;
