@@ -1,13 +1,6 @@
 import React from "react";
 import { withRouter, useLocation, useHistory } from "react-router-dom";
-import {
-  Grid,
-  makeStyles,
-  Paper,
-  Typography,
-  Button,
-  useTheme,
-} from "@material-ui/core";
+import { Grid, makeStyles, Paper, Typography, Button } from "@material-ui/core";
 import FusionCharts from "fusioncharts";
 import charts from "fusioncharts/fusioncharts.charts";
 import ReactFusioncharts from "react-fusioncharts";
@@ -55,7 +48,6 @@ const ResultScreen = () => {
   const classes = useStyles();
   const location = useLocation();
   const history = useHistory();
-  const theme = useTheme();
   const { message, results } = location.state;
 
   const dataSource = {

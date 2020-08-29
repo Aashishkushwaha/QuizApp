@@ -47,7 +47,7 @@ const GameScreen = ({ enqueueSnackbar }) => {
   const { questions } = location.state;
   const { difficulty } = questions[0];
   const initialTime =
-    difficulty === "hard" ? 5 : difficulty === "medium" ? 45 : 60;
+    difficulty === "hard" ? 30 : difficulty === "medium" ? 45 : 60;
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [options, setOptions] = useState([]);
   const totalQuestions = questions.length;
@@ -149,7 +149,10 @@ const GameScreen = ({ enqueueSnackbar }) => {
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <Typography variant="body1" align="center">
-              Difficulty Level: <strong>{questions[0].difficulty}</strong>
+              Difficulty Level:{" "}
+              <strong style={{ textTransform: "capitalize" }}>
+                {questions[0].difficulty}
+              </strong>
             </Typography>
           </Grid>
         </Grid>

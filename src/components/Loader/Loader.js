@@ -1,16 +1,15 @@
 import React from "react";
-import { makeStyles, Backdrop } from "@material-ui/core";
+import { makeStyles, Dialog } from "@material-ui/core";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
-    "& > * + *": {
-      marginLeft: theme.spacing(2),
-    },
-    backdrop: {
-      zIndex: theme.zIndex.drawer + 1,
-      color: "#fff",
+    padding: theme.spacing(5),
+  },
+  dialog: {
+    "& > * > *": {
+      padding: theme.spacing(4),
     },
   },
 }));
@@ -20,9 +19,14 @@ export default function Loader({ open }) {
 
   return (
     <div className={classes.root}>
-      <Backdrop className={classes.backdrop} open={open} onClick={() => {}}>
+      <Dialog
+        open={open}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        className={classes.dialog}
+      >
         <CircularProgress />
-      </Backdrop>
+      </Dialog>
     </div>
   );
 }

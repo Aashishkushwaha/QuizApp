@@ -46,10 +46,6 @@ const useStyles = makeStyles((theme) => ({
     "&:hover": {
       background: theme.palette.primary.main,
     },
-    backdrop: {
-      zIndex: theme.zIndex.drawer + 1,
-      color: "#fff",
-    },
   },
 }));
 
@@ -106,7 +102,6 @@ const GameStarter = ({ props }) => {
             Try to change difficulty level or change total number of questions`
             );
           } else {
-            // console.log({ response, result: response.results });
             await history.push({
               pathname: "/game",
               state: { questions: results },
