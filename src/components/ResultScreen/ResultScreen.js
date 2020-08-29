@@ -1,6 +1,11 @@
 import React from "react";
 import { withRouter, useLocation, useHistory } from "react-router-dom";
 import { Grid, makeStyles, Paper, Typography, Button } from "@material-ui/core";
+import FusionCharts from "fusioncharts";
+import charts from "fusioncharts/fusioncharts.charts";
+import ReactFusioncharts from "react-fusioncharts";
+
+charts(FusionCharts);
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -43,7 +48,34 @@ const ResultScreen = () => {
   const classes = useStyles();
   const location = useLocation();
   const history = useHistory();
-  const { message, result } = location.state;
+  const { message, results } = location.state;
+
+  const dataSource = {
+    chart: {
+      caption: "Quiz Results",
+      subcaption: "Performance Summary",
+      showvalues: "1",
+      showpercentintooltip: "0",
+      numbersuffix: "%",
+      enablemultislicing: "1",
+      paletteColors: ["#4caf50", "#ff6347", "#c1c1c1"],
+      theme: "fusion",
+    },
+    data: [
+      {
+        label: "Correct Answered",
+        value: (results.correctAnswered / results.totalQuestions) * 100,
+      },
+      {
+        label: "Wrong Answered",
+        value: (results.wrongAnswered / results.totalQuestions) * 100,
+      },
+      {
+        label: "Not Answered",
+        value: (results.notAnswered / results.totalQuestions) * 100,
+      },
+    ],
+  };
 
   return (
     <Grid item xs={12} lg={10} className={classes.root}>
@@ -51,30 +83,15 @@ const ResultScreen = () => {
         <Paper className={classes.paper}>
           <Typography variant="h5">{message}</Typography>
         </Paper>
-        <div style={{ padding: "2rem 0", paddingBottom: "5rem" }}>
-          <Grid container item xs={12} justify="space-between">
-            <Grid item xs={12} sm={5}>
-              <Paper className={classes.answerOption}>
-                <div>Total Questions : {result.totalQuestions}</div>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} sm={5}>
-              <Paper className={classes.answerOption}>
-                <div>Correct Answers : {result.correctAnswers}</div>
-              </Paper>
-            </Grid>
-          </Grid>
-          <Grid container item xs={12} justify="space-between">
-            <Grid item xs={12} sm={5}>
-              <Paper className={classes.answerOption}>
-                <div>Wrong Answers : {result.wrongAnswers}</div>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} sm={5}>
-              <Paper className={classes.answerOption}>
-                <div>Not Answered : {result.notAnswered}</div>
-              </Paper>
-            </Grid>
+        <div style={{ padding: "2rem 0" }}>
+          <Grid container item xs={12} justify="center">
+            <ReactFusioncharts
+              type="pie3d"
+              width="85%"
+              height="90%"
+              dataFormat="JSON"
+              dataSource={dataSource}
+            />
           </Grid>
         </div>
         <div>

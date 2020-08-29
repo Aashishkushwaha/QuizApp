@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { withRouter, useLocation, useHistory } from "react-router-dom";
-import { Grid, makeStyles, Paper, Typography, Button } from "@material-ui/core";
+import { useLocation, useHistory } from "react-router-dom";
+import {
+  Grid,
+  makeStyles,
+  Paper,
+  Typography,
+  Button,
+  useTheme,
+} from "@material-ui/core";
+import { withSnackbar } from "notistack";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,10 +39,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const GameScreen = () => {
+const GameScreen = ({ enqueueSnackbar }) => {
   const classes = useStyles();
   const location = useLocation();
   const history = useHistory();
+  const theme = useTheme();
   const { questions } = location.state;
   const { difficulty } = questions[0];
   const initialTime =
@@ -45,13 +54,30 @@ const GameScreen = () => {
   const [timeLeft, setTimeLeft] = useState(initialTime);
   const [selectedOption, setSelectedOption] = useState(-1);
   const [correctOption, setCorrectOption] = useState(2);
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [results, setResults] = useState({
+    correctAnswered: 0,
+    notAnswered: 0,
+    wrongAnswered: 0,
+    totalQuestions,
+  });
+  let timerInstance = "";
 
   useEffect(() => {
-    const timerInstance = setInterval(() => {
+    timerInstance = setInterval(() => {
       setTimeLeft(timeLeft - 1);
     }, 1000);
 
-    if (timeLeft <= 0) clearInterval(timerInstance);
+    if (timeLeft <= 0) {
+      enqueueSnackbar("You've not answered this question.", {
+        variant: "error",
+      });
+      setResults((results) => {
+        return { ...results, notAnswered: results.notAnswered + 1 };
+      });
+      clearInterval(timerInstance);
+      setIsConfirmed(true);
+    }
 
     return () => {
       clearInterval(timerInstance);
@@ -67,11 +93,6 @@ const GameScreen = () => {
     let correctAnswerIndex = shuffledOptions.findIndex(
       (item) => item === questions[currentQuestion].correct_answer
     );
-    console.log({
-      question: questions[currentQuestion],
-      "shuffled: ": shuffledOptions,
-      correctAnswerIndex,
-    });
     setCorrectOption(correctAnswerIndex);
     setOptions([...shuffledOptions]);
   }, [currentQuestion, questions]);
@@ -79,12 +100,6 @@ const GameScreen = () => {
   const shuffleOptions = (options) => {
     let copiedOptions = [...options];
     copiedOptions.sort(() => Math.random() - 0.5);
-    // for (let i = copiedOptions.length - 1; i > 0; i--) {
-    //   const j = Math.floor(Math.random() * i);
-    //   const temp = copiedOptions[i];
-    //   copiedOptions[i] = copiedOptions[j];
-    //   copiedOptions[j] = temp;
-    // }
     return copiedOptions;
   };
 
@@ -92,10 +107,24 @@ const GameScreen = () => {
     setCurrentQuestion((question) => question + 1);
     setTimeLeft(initialTime);
     setSelectedOption(-1);
+    setIsConfirmed(false);
   };
 
   const optionClickHandler = (index) => {
     setSelectedOption(index);
+  };
+
+  const submitClickHandler = () => {
+    if (selectedOption === correctOption)
+      setResults((results) => {
+        return { ...results, correctAnswered: results.correctAnswered + 1 };
+      });
+    else
+      setResults((results) => {
+        return { ...results, wrongAnswered: results.wrongAnswered + 1 };
+      });
+    clearInterval(timerInstance);
+    setIsConfirmed(true);
   };
 
   return (
@@ -112,12 +141,18 @@ const GameScreen = () => {
           </Grid>
           <Grid item sm={12} md={4}>
             <Typography variant="body1" align="center">
-              Time: <strong>{timeLeft}s</strong>
+              Time:{" "}
+              <strong style={{ color: timeLeft <= 15 ? "red" : "black" }}>
+                {timeLeft}s
+              </strong>
             </Typography>
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <Typography variant="body1" align="center">
-              Difficulty Level: <strong>{questions[0].difficulty}</strong>
+              Difficulty Level:{" "}
+              <strong style={{ textTransform: "capitalize" }}>
+                {questions[0].difficulty}
+              </strong>
             </Typography>
           </Grid>
         </Grid>
@@ -135,20 +170,32 @@ const GameScreen = () => {
               return (
                 <Grid key={`${option}-${index}`} item xs={12} sm={5}>
                   <Paper
-                    onClick={() => optionClickHandler(index)}
+                    onClick={() =>
+                      !isConfirmed ? optionClickHandler(index) : () => {}
+                    }
                     style={{
                       background:
                         (selectedOption === correctOption &&
-                          index === correctOption) ||
-                        (index === correctOption && selectedOption !== -1) ||
+                          index === correctOption &&
+                          isConfirmed) ||
+                        (index === correctOption &&
+                          selectedOption !== -1 &&
+                          isConfirmed) ||
                         (timeLeft === 0 && index === correctOption)
                           ? "green"
-                          : selectedOption !== -1 && selectedOption === index
+                          : selectedOption !== -1 &&
+                            selectedOption === index &&
+                            isConfirmed
                           ? "tomato"
                           : "white",
+                      border:
+                        selectedOption === index && !isConfirmed
+                          ? `3px solid ${theme.palette.secondary.main}`
+                          : "3px solid transparent",
                       color:
                         (selectedOption !== -1 || timeLeft === 0) &&
-                        (index === selectedOption || index === correctOption)
+                        (index === selectedOption || index === correctOption) &&
+                        isConfirmed
                           ? "white"
                           : "black",
                     }}
@@ -166,26 +213,37 @@ const GameScreen = () => {
             <Button
               color="secondary"
               variant="outlined"
+              disabled={selectedOption === -1 && timeLeft !== 0}
               onClick={
-                currentQuestion < totalQuestions - 1
+                !isConfirmed
+                  ? submitClickHandler
+                  : currentQuestion < totalQuestions - 1
                   ? nextQuestionHandler
                   : () => {
+                      let { correctAnswered, totalQuestions } = results;
+                      let percentage = (correctAnswered / totalQuestions) * 100;
+                      let message = "You scored " + percentage + "%, ";
+                      message +=
+                        percentage <= 50
+                          ? "Opps... Play again & improve your skills."
+                          : percentage <= 75
+                          ? "Good work, Better luck next time."
+                          : "Nice work... Keep it up!!!";
                       history.push({
                         pathname: "/result",
                         state: {
-                          message: "You passed",
-                          result: {
-                            correctAnswers: totalQuestions - 4,
-                            wrongAnswers: totalQuestions - 7,
-                            notAnswered: totalQuestions - 9,
-                            totalQuestions,
-                          },
+                          message,
+                          results,
                         },
                       });
                     }
               }
             >
-              {currentQuestion < totalQuestions - 1 ? "Next" : "Finish"}
+              {!isConfirmed
+                ? "Submit"
+                : currentQuestion < totalQuestions - 1
+                ? "Next"
+                : "Finish"}
             </Button>
           </Grid>
         </div>
@@ -194,4 +252,4 @@ const GameScreen = () => {
   );
 };
 
-export default withRouter(GameScreen);
+export default withSnackbar(GameScreen);
