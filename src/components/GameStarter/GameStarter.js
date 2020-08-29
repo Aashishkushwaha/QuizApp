@@ -102,7 +102,11 @@ const GameStarter = ({ props }) => {
             );
           } else {
             console.log({ response, result: response.results });
-            await history.push("/game");
+            // await history.push("/game");
+            await history.push({
+              pathname: "/game",
+              state: { questions: results },
+            });
           }
         });
     }
