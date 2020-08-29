@@ -14,13 +14,17 @@ import Dialog from "../Dialog/Dialog";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    flexGrow: 1,
+    padding: "2rem",
+    width: "100%",
+    position: "absolute",
+    left: "50%",
+    top: "50%",
     margin: "0 auto",
-    padding: "8rem 2rem",
+    transform: "translate(-55%, -50%)",
   },
   formControl: {
     margin: "1rem",
-    width: "90%",
+    width: "100%",
     maxWidth: "450px",
     borderWidth: "20px",
   },
@@ -37,7 +41,8 @@ const useStyles = makeStyles((theme) => ({
     marginTop: "3.5rem",
     marginLeft: ".8rem",
     padding: ".7rem",
-    width: "85%",
+    width: "100%",
+    maxWidth: "450px",
     "&:hover": {
       background: theme.palette.primary.main,
     },
@@ -101,8 +106,7 @@ const GameStarter = ({ props }) => {
             Try to change difficulty level or change total number of questions`
             );
           } else {
-            console.log({ response, result: response.results });
-            // await history.push("/game");
+            // console.log({ response, result: response.results });
             await history.push({
               pathname: "/game",
               state: { questions: results },

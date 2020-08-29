@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import ThemeProvider from "./ThemeWrapper";
+import { SnackbarProvider } from "notistack";
 import { BrowserRouter as Router } from "react-router-dom";
 import * as serviceWorker from "./serviceWorker";
 
@@ -12,7 +13,15 @@ import * as serviceWorker from "./serviceWorker";
 ReactDOM.render(
   <Router>
     <ThemeProvider>
-      <App />
+      <SnackbarProvider
+        maxSnack={3}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+      >
+        <App />
+      </SnackbarProvider>
     </ThemeProvider>
   </Router>,
   document.getElementById("root")
